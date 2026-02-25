@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AgroAI Pro - Smart Crop Assistant{% endblock %}</title>
+    <meta name="description"
+        content="AgroAI Pro: Advanced AI-powered crop disease detection and treatment assistant. Identify plant diseases instantly with high accuracy.">
+    <meta name="keywords"
+        content="crop disease detection, AI agriculture, plant health assistant, smart farming, agro ai">
+    <meta name="author" content="AgroAI Team">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://agro-ai-pro.onrender.com/">
+    <meta property="og:title" content="AgroAI Pro - Smart Crop Assistant">
+    <meta property="og:description"
+        content="Identify crop diseases instantly with our advanced AI vision system. Get professional treatment protocols for over 30+ crop varieties.">
+    <meta property="og:image" content="{{ url_for('static', filename='img/og-image.jpg') }}">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://agro-ai-pro.onrender.com/">
+    <meta property="twitter:title" content="AgroAI Pro - Smart Crop Assistant">
+    <meta property="twitter:description" content="Identify crop diseases instantly with our advanced AI vision system.">
+    <meta property="twitter:image" content="{{ url_for('static', filename='img/og-image.jpg') }}">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Professional CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+
+    {% if session.get('logged_in') %}
+    <!-- Professional Navigation Bar -->
+    <nav>
+        <a href="{{ url_for('dashboard') }}" class="logo">
+            <i class="fa-solid fa-leaf"></i> AGRO<span>AI</span> PRO
+        </a>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('dashboard') }}"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+            <li><a href="{{ url_for('diagnose') }}"><i class="fa-solid fa-microscope"></i> AI Analyze</a></li>
+            <li><a href="{{ url_for('library') }}"><i class="fa-solid fa-book-open"></i> Encyclopedia</a></li>
+            <li><a href="{{ url_for('treatment') }}"><i class="fa-solid fa-kit-medical"></i> Treatments</a></li>
+            <li><a href="{{ url_for('history') }}"><i class="fa-solid fa-clock-rotate-left"></i> Reports</a></li>
+            <li><a href="{{ url_for('profile') }}"><i class="fa-solid fa-user-gear"></i> Profile</a></li>
+            <li><a href="{{ url_for('logout') }}" style="color: #ffcdd2;"><i class="fa-solid fa-right-from-bracket"></i>
+                    Logout</a></li>
+        </ul>
+    </nav>
+    {% endif %}
+
+    <div class="container">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="flash {{ category }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer>
+        <p>&copy; 2024 AgroAI Professional Assistant. Empowering Sustainable Agriculture.</p>
+    </footer>
+
+</body>
+
+</html>

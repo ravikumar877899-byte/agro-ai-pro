@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <h1>AI Vision Diagnosis</h1>
+    <p style="color: var(--text-secondary);">Upload a high-quality image of the affected plant leaf for precise AI
+        analysis.</p>
+</div>
+
+<div class="grid">
+    <!-- Upload Section -->
+    <div class="card">
+        <h3>1. Upload Source Image</h3>
+        <p style="margin: 1rem 0; font-size: 0.9rem; color: #666;">Supported formats: JPG, PNG, JPEG. Ensure the leaf is
+            center-focused.</p>
+
+        <form action="{{ url_for('diagnose') }}" method="POST" enctype="multipart/form-data" id="uploadForm">
+            <div class="form-group">
+                <input type="file" name="file" id="fileInput" accept="image/*" required onchange="previewImage(event)">
+            </div>
+            <div id="previewContainer" style="margin-bottom: 1rem; display: none;">
+                <p style="font-size: 0.8rem; font-weight: bold; margin-bottom: 5px;">Image Preview:</p>
+                <img id="imagePreview" src="" alt="Preview"
+                    style="max-width: 100%; border-radius: 10px; border: 2px dashed var(--primary-color);">
+            </div>
+            <button type="submit" class="btn" style="width: 100%;">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Execute AI Analysis
+            </button>
+        </form>
+    </div>
+
+    <!-- Results Section -->
+    <div class="card {{ 'flex-center' if not label else '' }}" id="resultsSection"
+        data-accuracy="{{ accuracy|default(0) }}" data-affected="{{ affected|default(0) }}"
+        data-label="{{ label|default('') }}">
+
+        {% if label %}
+        <div class="results-layout">
+            <div class="status-badge">
+                <i class="fa-solid fa-circle-check"></i>
+                <span>Analysis Complete</span>
+            </div>
+            <img src="{{ url_for('static', filename='uploads/' ~ file_path) }}" alt="Input Image" class="result-img">
+        </div>
+
+        <div class="details-panel">
+            <div class="info-row">
+                <span class="info-label">Crop Target:</span>
+                <span class="info-value crop-name">{{ crop_name }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Condition:</span>
+                <span class="info-value {{ 'text-healthy' if 'healthy' in label.lower() else 'text-diseased' }}">{{
+                    disease_name }}</span>
+            </div>
+            <hr class="divider">
+
+            <div class="stat-group">
+                <div class="stat-header">
+                    <span>Prediction Accuracy:</span>
+                    <span class="stat-value">{{ accuracy }}%</span>
+                </div>
+                <div class="progress-container">
+                    <div id="accBar" class="progress-bar"></div>
+                </div>
+            </div>
+
+            <div class="stat-group">
+                <div class="stat-header">
+                    <span>Disease Surface Area Influence:</span>
+                    <span class="stat-value">{{ affected }}%</span>
+                </div>
+                <div class="progress-container">
+                    <div id="affBar" class="progress-bar"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-footer">
+            {% if "healthy" not in label.lower() %}
+            <a href="#treatmentInfo" class="btn full-width">Explore Treatment Protocol</a>
+            {% else %}
+            <a href="{{ url_for('library') }}" class="btn full-width">Visit Crop Encyclopedia</a>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <p>Upload an image to see the diagnostic breakdown here.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .flex-center {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #resultsSection {
+        min-height: 400px;
+    }
+
+    .results-layout {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 10px 20px;
+        background: #e8f5e9;
+        border-radius: 30px;
+        margin-bottom: 1rem;
+        color: #2e7d32;
+        font-weight: bold;
+    }
+
+    .status-badge i {
+        margin-right: 5px;
+    }
+
+    .result-img {
+        max-height: 200px;
+        border-radius: 15px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1rem;
+    }
+
+    .details-panel {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        border: 1px solid #eee;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+
+    .info-label {
+        font-weight: bold;
+    }
+
+    .info-value {
+        font-weight: bold;
+    }
+
+    .crop-name {
+        color: var(--primary-color);
+        text-transform: uppercase;
+    }
+
+    .divider {
+        border: 0;
+        border-top: 1px solid #eee;
+        margin: 15px 0;
+    }
+
+    .stat-group {
+        margin-bottom: 15px;
+    }
+
+    .stat-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+    }
+
+    .stat-value {
+        font-weight: bold;
+    }
+
+    .action-footer {
+        margin-top: 1.5rem;
+    }
+
+    .full-width {
+        width: 100%;
+        text-align: center;
+    }
+
+    .empty-state {
+        text-align: center;
+        color: #999;
+        padding: 3rem 0;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+</style>
+
+{% if treatment_data %}
+<div id="treatmentInfo" class="card" style="margin-top: 2rem;">
+    <h3 style="color: #2e7d32; display: flex; align-items: center; gap: 10px;">
+        <i class="fa-solid fa-prescription-bottle-medical"></i> Remediation Specialist Guide: {{ disease_name }}
+    </h3>
+    <p style="margin: 1rem 0;"><strong>Type:</strong> {{ treatment_data.type }}</p>
+
+    <div style="background: #f1f8e9; padding: 1.5rem; border-radius: 15px; margin-top: 1rem;">
+        <h4 style="margin-bottom: 10px;">Detection Symptoms:</h4>
+        <p style="font-style: italic; color: #555;">{{ treatment_data.symptoms }}</p>
+    </div>
+
+    <div style="margin-top: 1.5rem;">
+        <h4 style="margin-bottom: 15px;">Step-by-Step Remediation:</h4>
+        <ul style="list-style: none;">
+            {% for step in treatment_data.treatment %}
+            <li style="display: flex; gap: 15px; margin-bottom: 12px; align-items: flex-start;">
+                <i class="fa-solid fa-shield-check" style="color: #8bc34a; margin-top: 5px;"></i>
+                <span>{{ step }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div style="margin-top: 2rem; border-top: 1px solid #eee; padding-top: 1.5rem;">
+        <button class="btn" onclick="window.print()" style="background: #607d8b;">
+            <i class="fa-solid fa-print"></i> Download Treatment Report
+        </button>
+        <a href="{{ url_for('library') }}" class="btn"
+            style="background: white; color: var(--primary-color); border: 2px solid var(--primary-color); margin-left: 10px;">
+            Read Encyclopedia
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<script>
+    function previewImage(event) {
+        const input = event.target;
+        const container = document.getElementById('previewContainer');
+        const preview = document.getElementById('imagePreview');
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                container.style.display = 'block';
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // Dynamic Styling Logic
+    document.addEventListener('DOMContentLoaded', function () {
+        const results = document.getElementById('resultsSection');
+        if (results && results.dataset.label) {
+            const acc = results.dataset.accuracy;
+            const aff = results.dataset.affected;
+
+            const accBar = document.getElementById('accBar');
+            const affBar = document.getElementById('affBar');
+
+            if (accBar) accBar.style.width = acc + '%';
+            if (affBar) {
+                affBar.style.width = aff + '%';
+                affBar.style.backgroundColor = parseInt(aff) > 50 ? '#f44336' : '#ff9800';
+            }
+        }
+    });
+</script>
+{% endblock %}

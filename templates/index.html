@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <h1>Welcome, {{ session.get('username') }}!</h1>
+    <p style="color: var(--text-secondary);">Here is your crop health analytical overview for today.</p>
+</div>
+
+<div class="grid">
+    <!-- Stat 1 -->
+    <div class="card stat-card">
+        <i class="fa-solid fa-camera-retro" style="font-size: 2rem; color: var(--primary-color);"></i>
+        <div class="stat-number">{{ total_scans }}</div>
+        <p>Total Scans Performed</p>
+    </div>
+
+    <!-- Stat 2 -->
+    <div class="card stat-card">
+        <i class="fa-solid fa-heart-pulse" style="font-size: 2rem; color: #43a047;"></i>
+        <div class="stat-number">{{ healthy_count }}</div>
+        <p>Healthy Crops Detected</p>
+    </div>
+
+    <!-- Stat 3 -->
+    <div class="card stat-card">
+        <i class="fa-solid fa-virus-slash" style="font-size: 2rem; color: #e53935;"></i>
+        <div class="stat-number">{{ diseased_count }}</div>
+        <p>Diseased Crops Identified</p>
+    </div>
+</div>
+
+<div class="card" style="margin-top: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h3>Recent AI Diagnoses</h3>
+        <a href="{{ url_for('history') }}" class="btn" style="padding: 0.5rem 1rem; font-size: 0.9rem;">View All
+            Reports</a>
+    </div>
+
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="text-align: left; border-bottom: 2px solid #eee;">
+                <th style="padding: 1rem 0.5rem;">Date</th>
+                <th style="padding: 1rem 0.5rem;">Crop & Disease</th>
+                <th style="padding: 1rem 0.5rem;">Accuracy</th>
+                <th style="padding: 1rem 0.5rem;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in recent_diagnoses %}
+            <tr style="border-bottom: 1px solid #f5f5f5;">
+                <td style="padding: 1rem 0.5rem; font-size: 0.9rem;">{{ record[5].split('.')[0] }}</td>
+                <td style="padding: 1rem 0.5rem;">
+                    <strong>{{ record[2].replace('___', ' | ').replace('_', ' ') }}</strong>
+                </td>
+                <td style="padding: 1rem 0.5rem;">
+                    <span
+                        style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 5px; font-weight: bold; font-size: 0.8rem;">
+                        {{ record[3] }}%
+                    </span>
+                </td>
+                <td style="padding: 1rem 0.5rem;">
+                    <a href="{{ url_for('diagnose') }}"
+                        style="color: var(--primary-color); text-decoration: none; font-weight: 500;">Details</a>
+                </td>
+            </tr>
+            {% endfor %}
+            {% if not recent_diagnoses %}
+            <tr>
+                <td colspan="4" style="text-align: center; padding: 2rem; color: #999;">No recent activity. Start by
+                    analyzing a crop image!</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<div class="grid" style="margin-top: 2rem;">
+    <div class="card">
+        <h3>Quick Action: AI Vision</h3>
+        <p style="margin: 1rem 0; color: #666;">Upload a high-resolution image of your crop leaf for instant disease
+            identification and treatment protocol.</p>
+        <a href="{{ url_for('diagnose') }}" class="btn">Start AI Analysis</a>
+    </div>
+    <div class="card">
+        <h3>System Status</h3>
+        <div style="display: flex; align-items: center; gap: 10px; margin-top: 1rem;">
+            <div style="width: 12px; height: 12px; background: #4caf50; border-radius: 50%;"></div>
+            <span>AI Model Engine: Online</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; margin-top: 0.5rem;">
+            <div style="width: 12px; height: 12px; background: #4caf50; border-radius: 50%;"></div>
+            <span>Diagnostic Database: Connected</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
